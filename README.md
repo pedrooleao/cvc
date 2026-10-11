@@ -4,6 +4,7 @@ Página para o culto da Comunidade de Vida Cristã Bruxelas: as pessoas escaneia
 
 - `index.html`: a página que as pessoas abrem no celular.
 - `qr.html`: gera o QR code que aponta para a página (pronto para imprimir ou projetar).
+- `assets/`: logo da CVC e o mascote do Jesus (recortado e otimizado em WebP).
 - `vendor/qrcode.js`: biblioteca de QR code (MIT, Kazuhiko Arase), incluída localmente para funcionar sem CDN.
 
 ## Publicar no GitHub Pages

@@ -6,9 +6,10 @@
 <meta name="theme-color" content="#1c1c1c">
 <title>Modo Avião · CVC</title>
 <meta name="description" content="A única conexão que você precisa é com Deus. Comunidade de Vida Cristã Bruxelas.">
+<link rel="preload" as="image" href="assets/jesus.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,800&family=Figtree:wght@400;500;600;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #f5f4f1;
@@ -17,9 +18,9 @@
     --muted: #55607a;
     --line: #2b3f6b;
     --header: #1c1c1c;
-    --peach: #e9a48c;
     --peach-soft: #f6d3c2;
-    --blue: #1f8fd0;
+    --orange: #f29a38;
+    --red: #c8352e;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { min-height: 100%; }
@@ -29,155 +30,243 @@
     font-family: "Figtree", system-ui, sans-serif;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
   }
 
   header {
-    position: relative; z-index: 2;
+    position: relative; z-index: 3;
     background: var(--header);
-    color: #fff;
-    display: flex; align-items: center; justify-content: center; gap: 12px;
-    padding: 16px;
+    display: flex; justify-content: center;
+    padding: 14px 16px;
   }
-  header svg { width: 38px; height: 38px; }
-  header .brand { line-height: 1.1; text-align: left; }
-  header .brand small { display: block; font-size: 8px; letter-spacing: .35em; text-transform: uppercase; opacity: .85; }
-  header .brand span { font-family: "Source Serif 4", Georgia, serif; font-style: italic; font-size: 20px; }
+  header img { height: 46px; width: auto; display: block; }
 
-  canvas#bg { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; }
+  canvas#bg { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+  #fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 4; pointer-events: none; }
+
+  /* notificações que ficam flutuando, tentando chamar atenção */
+  #distractions { position: fixed; inset: 0; z-index: 1; overflow: hidden; }
+  .notif {
+    position: absolute; bottom: -80px;
+    display: flex; align-items: center; gap: 6px;
+    padding: 8px 12px 8px 8px;
+    background: rgba(255,255,255,.7);
+    opacity: .85;
+    border: 1px solid rgba(0,0,0,.06);
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(30,42,68,.1);
+    font-size: 13px; font-weight: 600; color: var(--text);
+    white-space: nowrap;
+    cursor: pointer;
+    animation: floatUp linear forwards;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  }
+  .notif .ico { font-size: 18px; line-height: 1; }
+  .notif .badge {
+    position: absolute; top: -6px; right: -6px;
+    background: #ff3b30; color: #fff; font-size: 10px; font-weight: 800;
+    padding: 2px 6px; border-radius: 999px;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) rotate(var(--r0)); }
+    100% { transform: translateY(calc(-100svh - 160px)) rotate(var(--r1)); }
+  }
+  .notif.pop { animation: pop .35s ease-out forwards !important; }
+  @keyframes pop { to { transform: scale(1.6); opacity: 0; filter: blur(4px); } }
+  .notif.away { transition: transform .9s cubic-bezier(.5,-0.4,.7,1), opacity .9s; opacity: 0; }
 
   main {
-    position: relative; z-index: 1;
-    min-height: calc(100svh - 70px);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; z-index: 2;
+    display: flex; flex-direction: column; align-items: center;
     text-align: center;
-    padding: 40px 16px 56px;
-    gap: 26px;
+    padding: 18px 16px 48px;
+    gap: 22px;
+    pointer-events: none;
+  }
+  main > * { pointer-events: auto; }
+
+  /* Jesus + balão */
+  .hero { position: relative; width: min(48vw, 210px); margin-top: 58px; }
+  .hero img {
+    display: block; width: 100%; height: auto;
+    transform-origin: 50% 100%;
+    animation: enter 1s cubic-bezier(.3,1.5,.5,1) both, idle 3.2s 1.2s ease-in-out infinite;
+    filter: drop-shadow(0 18px 20px rgba(30,42,68,.18));
+  }
+  @keyframes enter { from { transform: translateY(60px) scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes idle { 0%,100% { transform: rotate(0); } 50% { transform: rotate(-2deg) translateY(-4px); } }
+  .hero.happy img { animation: hop .5s ease-in-out 3, idle 3.2s 1.6s ease-in-out infinite; }
+  @keyframes hop {
+    0%,100% { transform: translateY(0) rotate(0); }
+    40% { transform: translateY(-26px) rotate(4deg); }
+    70% { transform: translateY(0) rotate(-3deg); }
   }
 
-  /* barras de sinal que vão sumindo */
-  .signal { display: flex; align-items: flex-end; gap: 5px; height: 34px; }
-  .signal span {
-    width: 7px; border-radius: 2px; background: var(--ink);
-    animation: fade 4s ease-in-out infinite;
+  .bubble {
+    position: absolute; top: -50px; left: 62%;
+    width: max-content; max-width: min(190px, 44vw);
+    background: #fff; color: var(--ink);
+    padding: 12px 14px;
+    border-radius: 18px 18px 18px 4px;
+    box-shadow: 0 10px 24px rgba(30,42,68,.14);
+    font-weight: 600; font-size: 15px; line-height: 1.3;
+    text-align: left;
+    animation: bubbleIn .5s 1s cubic-bezier(.3,1.6,.5,1) both;
   }
-  .signal span:nth-child(1) { height: 25%;  animation-delay: 1.5s; }
-  .signal span:nth-child(2) { height: 50%;  animation-delay: 1s; }
-  .signal span:nth-child(3) { height: 75%;  animation-delay: .5s; }
-  .signal span:nth-child(4) { height: 100%; animation-delay: 0s; }
-  @keyframes fade {
-    0%, 15%  { opacity: .9; }
-    45%, 80% { opacity: .1; }
-    100%     { opacity: .9; }
+  .bubble::after {
+    content: ""; position: absolute; bottom: -9px; left: 18px;
+    border: 10px solid transparent; border-top-color: #fff; border-bottom: 0;
   }
+  .bubble.swap { animation: bubbleSwap .45s cubic-bezier(.3,1.6,.5,1); }
+  @keyframes bubbleIn { from { transform: scale(0) rotate(-8deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  @keyframes bubbleSwap { 0% { transform: scale(.6); } 100% { transform: none; } }
 
   h1 {
     font-family: "Source Serif 4", Georgia, serif;
     font-weight: 800;
-    font-size: clamp(44px, 11vw, 112px);
-    line-height: 1.02;
+    font-size: clamp(38px, 10vw, 84px);
+    line-height: 1.03;
     letter-spacing: -.01em;
     max-width: 11em;
-    opacity: 0; animation: rise 1.2s .3s ease-out forwards;
+    animation: rise 1s .4s ease-out both;
   }
   h1 em { font-style: normal; position: relative; white-space: nowrap; }
   h1 em::after {
-    content: ""; position: absolute; left: -2%; right: -2%; bottom: .08em; height: .18em;
+    content: ""; position: absolute; left: -2%; right: -2%; bottom: .08em; height: .2em;
     background: var(--peach-soft); z-index: -1; border-radius: 4px;
     transform-origin: left; transform: scaleX(0);
-    animation: underline 1s 1.4s ease-out forwards;
+    animation: underline .8s 1.4s ease-out forwards;
   }
   @keyframes underline { to { transform: scaleX(1); } }
 
   .signature {
-    display: flex; align-items: center; justify-content: center; gap: 18px;
-    font-size: clamp(11px, 3vw, 17px); font-weight: 500;
-    letter-spacing: .14em; text-transform: uppercase; color: var(--ink);
-    opacity: 0; animation: rise 1.2s .8s ease-out forwards;
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    font-size: clamp(11px, 3vw, 16px); font-weight: 500;
+    letter-spacing: .14em; text-transform: uppercase; white-space: nowrap;
+    animation: rise 1s .7s ease-out both;
   }
-  .signature i { width: clamp(40px, 12vw, 150px); height: 1px; background: var(--line); }
+  .signature i { width: clamp(32px, 10vw, 120px); height: 1px; background: var(--line); }
 
   .lead {
-    font-size: clamp(17px, 4.4vw, 21px);
-    line-height: 1.6;
-    color: var(--text);
-    max-width: 30em;
-    opacity: 0; animation: rise 1.2s 1.1s ease-out forwards;
+    font-size: clamp(17px, 4.4vw, 20px);
+    line-height: 1.55; color: var(--text);
+    max-width: 28em;
+    animation: rise 1s 1s ease-out both;
   }
 
   .plane-card {
     display: flex; align-items: center; gap: 14px;
-    padding: 14px 18px 14px 14px;
+    width: min(100%, 380px);
+    padding: 14px 16px 14px 14px;
     background: #fff;
     border: 1px solid #e6e3dd;
-    border-radius: 14px;
-    box-shadow: 0 10px 30px rgba(30,42,68,.08);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(30,42,68,.1);
     cursor: pointer; user-select: none;
-    transition: box-shadow .3s, transform .3s;
-    opacity: 0; animation: rise 1.2s 1.5s ease-out forwards;
+    animation: rise 1s 1.3s ease-out both, nudge 2.4s 3s ease-in-out infinite;
   }
-  .plane-card:hover { box-shadow: 0 14px 40px rgba(30,42,68,.14); }
+  .plane-card.on { animation: none; }
+  @keyframes nudge { 0%,85%,100% { transform: none; } 90% { transform: rotate(-2deg) scale(1.03); } 95% { transform: rotate(2deg) scale(1.03); } }
   .plane-icon {
-    width: 46px; height: 46px; border-radius: 50%;
+    width: 48px; height: 48px; border-radius: 50%; flex: none;
     display: grid; place-items: center;
-    background: #efede8;
-    transition: background .4s;
+    background: #efede8; transition: background .4s;
   }
   .plane-icon svg { width: 24px; height: 24px; fill: var(--ink); transition: fill .4s, transform .6s; }
-  .plane-text { text-align: left; }
-  .plane-text b { display: block; font-size: 17px; font-weight: 600; }
+  .plane-text { text-align: left; flex: 1; }
+  .plane-text b { display: block; font-size: 18px; font-weight: 800; }
   .plane-text small { color: var(--muted); font-size: 13px; }
   .toggle {
-    width: 52px; height: 30px; border-radius: 999px; margin-left: 6px; flex: none;
+    width: 56px; height: 32px; border-radius: 999px; flex: none;
     background: #d9d6cf; position: relative; transition: background .4s;
   }
   .toggle::after {
     content: ""; position: absolute; top: 3px; left: 3px;
-    width: 24px; height: 24px; border-radius: 50%; background: #fff;
+    width: 26px; height: 26px; border-radius: 50%; background: #fff;
     box-shadow: 0 1px 3px rgba(0,0,0,.2);
     transition: transform .4s cubic-bezier(.3,1.4,.5,1);
   }
-  .plane-card.on .toggle { background: #f29a38; }
-  .plane-card.on .toggle::after { transform: translateX(22px); }
-  .plane-card.on .plane-icon { background: #f29a38; }
+  .plane-card.on .toggle { background: var(--orange); }
+  .plane-card.on .toggle::after { transform: translateX(24px); }
+  .plane-card.on .plane-icon { background: var(--orange); }
   .plane-card.on .plane-icon svg { fill: #fff; transform: rotate(-12deg) translateY(-2px); }
 
-  .thanks { font-size: 15px; color: var(--text); min-height: 1.5em; }
+  /* "Wi‑Fi do Céu" */
+  .wifi {
+    width: min(100%, 380px);
+    background: var(--header); color: #fff;
+    border-radius: 18px;
+    padding: 16px 18px;
+    text-align: left;
+    animation: rise 1s 1.6s ease-out both;
+  }
+  .wifi h2 { font-size: 12px; letter-spacing: .2em; text-transform: uppercase; opacity: .6; font-weight: 600; margin-bottom: 10px; }
+  .wifi .net { display: flex; align-items: center; gap: 12px; }
+  .wifi .net svg { width: 28px; height: 28px; flex: none; }
+  .wifi .net svg path { fill: #fff; opacity: .25; animation: wave 2s ease-in-out infinite; }
+  .wifi .net svg path:nth-child(2) { animation-delay: .25s; }
+  .wifi .net svg path:nth-child(3) { animation-delay: .5s; }
+  @keyframes wave { 0%,100% { opacity: .25; } 40% { opacity: 1; } }
+  .wifi .net b { font-size: 18px; display: block; }
+  .wifi .net small { opacity: .7; font-size: 13px; }
+  .wifi dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin-top: 14px; font-size: 14px; }
+  .wifi dt { opacity: .6; }
+  .wifi dd { font-weight: 600; }
+  .wifi dd.gold { color: #f5c96a; }
 
   .verse {
-    max-width: 34em;
+    max-width: 30em;
     color: var(--muted);
-    font-size: 16px; line-height: 1.6; letter-spacing: .03em;
-    opacity: 0; animation: rise 1.2s 1.9s ease-out forwards;
+    font-size: 16px; line-height: 1.6;
+    animation: rise 1s 1.9s ease-out both;
+  }
+  .verse em { font-family: "Source Serif 4", Georgia, serif; font-size: 20px; color: var(--ink); display: block; }
+
+  .hint { font-size: 12px; color: var(--muted); opacity: .8; }
+
+  /* aviãozinho que cruza a tela */
+  .flyby {
+    position: fixed; z-index: 5; left: -80px; top: 30%;
+    width: 64px; height: 64px; pointer-events: none;
+    animation: flyby 2.4s cubic-bezier(.4,0,.6,1) forwards;
+  }
+  .flyby svg { width: 100%; height: 100%; fill: var(--orange); transform: rotate(90deg); filter: drop-shadow(0 6px 8px rgba(0,0,0,.2)); }
+  @keyframes flyby {
+    0%   { transform: translate(0, 40px) rotate(-10deg); }
+    50%  { transform: translate(55vw, -30px) rotate(-18deg); }
+    100% { transform: translate(calc(100vw + 160px), -120px) rotate(-24deg); }
   }
 
   @keyframes rise {
-    from { opacity: 0; transform: translateY(18px); filter: blur(6px); }
-    to   { opacity: 1; transform: none; filter: none; }
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: none; }
+  }
+  @media (min-width: 900px) {
+    .hero { width: 260px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; }
+    *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; }
   }
 </style>
 </head>
 <body>
 <canvas id="bg" aria-hidden="true"></canvas>
+<div id="distractions" aria-hidden="true"></div>
+<canvas id="fx" aria-hidden="true"></canvas>
 
 <header>
-  <svg viewBox="0 0 40 40" fill="none" stroke="#fff" stroke-width="1.6" aria-hidden="true">
-    <circle cx="20" cy="20" r="18"/>
-    <path d="M20 7v27M13 15h14" stroke-linecap="round"/>
-  </svg>
-  <div class="brand"><small>Comunidade de</small><span>Vida Cristã</span></div>
+  <img src="assets/logo-cvc.webp" alt="Comunidade de Vida Cristã Bruxelas" width="800" height="270">
 </header>
 
 <main>
-  <div class="signal" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+  <div class="hero" id="hero">
+    <div class="bubble" id="bubble">Ei! ✋ Larga esse celular um pouquinho…</div>
+    <img src="assets/jesus.webp" alt="Jesus fazendo sinal de pare com a mão" width="452" height="700">
+  </div>
 
   <h1>Desconecte-se.<br>Conecte-se com <em>Deus</em>.</h1>
 
-  <div class="signature"><span>Ative o modo avião</span><i></i><span>✈</span></div>
-
-  <p class="lead">A única conexão que você precisa agora é com Deus. Guarde o celular, ligue o modo avião e esteja presente.</p>
+  <p class="lead">A única conexão que você precisa agora é com Deus. Ligue o modo avião e esteja presente de verdade.</p>
 
   <div class="plane-card" id="plane" role="switch" aria-checked="false" tabindex="0">
     <div class="plane-icon">
@@ -185,104 +274,220 @@
     </div>
     <div class="plane-text">
       <b>Modo avião</b>
-      <small>Toque para se desconectar</small>
+      <small id="planeSub">Toque aqui para se desconectar</small>
     </div>
     <div class="toggle" aria-hidden="true"></div>
   </div>
 
-  <p class="thanks" id="thanks" aria-live="polite"></p>
+  <p class="hint">Psiu: dá pra estourar as notificações tocando nelas 😉</p>
 
-  <p class="verse">“Aquietai-vos e sabei que eu sou Deus.” — Salmos 46:10</p>
+  <section class="wifi" aria-label="Rede Wi-Fi do Céu">
+    <h2>Rede disponível</h2>
+    <div class="net">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 18.5a1.8 1.8 0 1 0 0 3.6 1.8 1.8 0 0 0 0-3.6z"/>
+        <path d="M7.2 15.3l1.6 1.6a4.5 4.5 0 0 1 6.4 0l1.6-1.6a6.8 6.8 0 0 0-9.6 0z"/>
+        <path d="M3.8 11.9l1.6 1.6a9.3 9.3 0 0 1 13.2 0l1.6-1.6a11.6 11.6 0 0 0-16.4 0zM.5 8.6l1.6 1.6a14 14 0 0 1 19.8 0l1.6-1.6a16.3 16.3 0 0 0-23 0z"/>
+      </svg>
+      <div><b>Céu 🕊️</b><small>Conectado · sinal perfeito</small></div>
+    </div>
+    <dl>
+      <dt>Senha</dt><dd>Oração 🙏</dd>
+      <dt>Velocidade</dt><dd class="gold">Ilimitada ∞</dd>
+      <dt>Cobertura</dt><dd>Em todo lugar, 24h</dd>
+      <dt>Mensalidade</dt><dd>Grátis (já foi pago na cruz)</dd>
+    </dl>
+  </section>
+
+  <p class="verse">
+    <em>“Aquietai-vos e sabei que eu sou Deus.”</em>
+    Salmos 46:10
+  </p>
+
+  <div class="signature"><span>Comunidade de Vida Cristã</span><i></i><span>Bruxelas</span></div>
 </main>
 
 <script>
 (() => {
-  const canvas = document.getElementById("bg");
-  const ctx = canvas.getContext("2d");
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let w, h, dpr, blobs, motes;
 
-  // manchas suaves nos tons do site (pêssego do livro e azul da foto)
-  const palette = [
-    [233, 164, 140], [246, 211, 194], [31, 143, 208], [190, 220, 240], [242, 154, 56]
-  ];
+  /* ---------- fundo: manchas suaves pêssego/azul ---------- */
+  const bg = document.getElementById("bg");
+  const bctx = bg.getContext("2d");
+  const fx = document.getElementById("fx");
+  const fctx = fx.getContext("2d");
+  const palette = [[233,164,140],[246,211,194],[31,143,208],[190,220,240],[242,154,56]];
+  let w, h, dpr, blobs, confetti = [];
 
   function resize() {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
-    w = canvas.width = innerWidth * dpr;
-    h = canvas.height = innerHeight * dpr;
+    w = bg.width = fx.width = innerWidth * dpr;
+    h = bg.height = fx.height = innerHeight * dpr;
     const m = Math.max(w, h);
     blobs = palette.map((c, i) => ({
       c, r: m * (.28 + Math.random() * .18),
-      x: Math.random() * w, y: Math.random() * h,
-      sx: .00007 + Math.random() * .00008, sy: .00006 + Math.random() * .00008,
-      p: i * 1.7, a: i === 2 ? .16 : .32
+      sx: .00008 + Math.random() * .00008, sy: .00007 + Math.random() * .00008,
+      p: i * 1.7, a: i === 2 ? .16 : .3
     }));
-    motes = Array.from({ length: Math.round(innerWidth * innerHeight / 22000) + 15 }, newMote);
   }
 
-  function newMote(initial) {
-    return {
-      x: Math.random() * w,
-      y: initial === true ? Math.random() * h : h + 10,
-      r: (Math.random() * 1.8 + .6) * dpr,
-      vy: -(Math.random() * .3 + .1) * dpr,
-      d: Math.random() * Math.PI * 2,
-      a: Math.random() * .35 + .15
-    };
-  }
-
-  function draw(t) {
-    ctx.clearRect(0, 0, w, h);
-
+  function frame(t) {
+    bctx.clearRect(0, 0, w, h);
     for (const b of blobs) {
       const x = w / 2 + Math.sin(t * b.sx + b.p) * w * .45;
       const y = h / 2 + Math.cos(t * b.sy + b.p) * h * .4;
-      const g = ctx.createRadialGradient(x, y, 0, x, y, b.r);
+      const g = bctx.createRadialGradient(x, y, 0, x, y, b.r);
       g.addColorStop(0, `rgba(${b.c},${b.a})`);
       g.addColorStop(1, `rgba(${b.c},0)`);
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, w, h);
+      bctx.fillStyle = g;
+      bctx.fillRect(0, 0, w, h);
     }
 
-    // grande círculo de luz, como o recorte circular do site
-    const pulse = 1 + Math.sin(t / 3000) * .03;
-    const cr = Math.min(w, h) * .42 * pulse;
-    const cg = ctx.createRadialGradient(w / 2, h * .42, cr * .6, w / 2, h * .42, cr);
-    cg.addColorStop(0, "rgba(255,255,255,.55)");
-    cg.addColorStop(1, "rgba(255,255,255,0)");
-    ctx.fillStyle = cg;
-    ctx.beginPath(); ctx.arc(w / 2, h * .42, cr, 0, Math.PI * 2); ctx.fill();
-
-    for (let i = 0; i < motes.length; i++) {
-      const m = motes[i];
-      m.y += m.vy; m.d += .01; m.x += Math.sin(m.d) * .25 * dpr;
-      if (m.y < -10) motes[i] = newMote();
-      ctx.globalAlpha = m.a;
-      ctx.fillStyle = "#c98a6c";
-      ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2); ctx.fill();
+    // confete
+    fctx.clearRect(0, 0, w, h);
+    confetti = confetti.filter(c => c.y < h + 40 && c.life > 0);
+    for (const c of confetti) {
+      c.vy += .18 * dpr; c.vx *= .99; c.x += c.vx; c.y += c.vy; c.rot += c.vr; c.life--;
+      fctx.save();
+      fctx.translate(c.x, c.y); fctx.rotate(c.rot);
+      fctx.fillStyle = c.color;
+      if (c.heart) { fctx.font = `${14 * dpr}px serif`; fctx.fillText(c.heart, 0, 0); }
+      else fctx.fillRect(-c.s / 2, -c.s / 4, c.s, c.s / 2);
+      fctx.restore();
     }
-    ctx.globalAlpha = 1;
 
-    if (!reduce) requestAnimationFrame(draw);
+    if (!reduce || confetti.length) requestAnimationFrame(frame);
+  }
+
+  function burst(x, y, n = 120) {
+    const colors = ["#f29a38", "#e9a48c", "#1f8fd0", "#f5c96a", "#c8352e", "#2b3f6b"];
+    const extras = ["🙏", "🕊️", "✨", "❤️"];
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2, s = (Math.random() * 9 + 4) * dpr;
+      confetti.push({
+        x: x * dpr, y: y * dpr,
+        vx: Math.cos(a) * s, vy: Math.sin(a) * s - 6 * dpr,
+        s: (Math.random() * 8 + 6) * dpr,
+        rot: Math.random() * 6, vr: (Math.random() - .5) * .3,
+        color: colors[i % colors.length],
+        heart: i % 9 === 0 ? extras[(i / 9) % extras.length | 0] : null,
+        life: 240
+      });
+    }
+    if (reduce) requestAnimationFrame(frame);
   }
 
   addEventListener("resize", resize);
   resize();
-  motes = motes.map(() => newMote(true));
-  requestAnimationFrame(draw);
+  requestAnimationFrame(frame);
 
+  /* ---------- notificações flutuando ---------- */
+  const layer = document.getElementById("distractions");
+  const notifs = [
+    ["💬", "Grupo da família", "99+"], ["❤️", "curtiu sua foto", "12"], ["📸", "Novo story", ""],
+    ["🔔", "Lembrete!", "3"], ["🎵", "Tocando agora…", ""], ["📧", "Nova mensagem", "27"],
+    ["🎮", "Sua vida acabou de recarregar", ""], ["📺", "Novo episódio!", ""], ["🛒", "Promoção relâmpago", "1"],
+    ["⚽", "GOOOL!", ""], ["👀", "Fulano te marcou", "5"], ["🔋", "Bateria 3%", ""]
+  ];
+  let spawning = true, idx = Math.floor(Math.random() * notifs.length);
+
+  function spawn() {
+    if (!spawning || document.hidden) return;
+    const [ico, txt, badge] = notifs[idx++ % notifs.length];
+    const el = document.createElement("div");
+    el.className = "notif";
+    el.innerHTML = `<span class="ico">${ico}</span>${txt}${badge ? `<span class="badge">${badge}</span>` : ""}`;
+    const maxLeft = Math.max(0, innerWidth - 220);
+    el.style.left = Math.random() * maxLeft + "px";
+    el.style.setProperty("--r0", (Math.random() * 16 - 8) + "deg");
+    el.style.setProperty("--r1", (Math.random() * 16 - 8) + "deg");
+    el.style.animationDuration = (9 + Math.random() * 7) + "s";
+    el.addEventListener("animationend", e => { if (e.animationName !== "pop") el.remove(); else el.remove(); });
+    el.addEventListener("pointerdown", e => {
+      e.stopPropagation();
+      el.classList.add("pop");
+      burst(e.clientX, e.clientY, 14);
+      if (navigator.vibrate) navigator.vibrate(10);
+    });
+    layer.appendChild(el);
+  }
+
+  let timer;
+  function startSpawning() {
+    spawning = true;
+    clearInterval(timer);
+    spawn();
+    timer = setInterval(spawn, 1400);
+  }
+  if (!reduce) startSpawning();
+
+  function clearDistractions() {
+    spawning = false;
+    clearInterval(timer);
+    for (const el of layer.querySelectorAll(".notif")) {
+      const r = el.getBoundingClientRect();
+      const dx = (r.left + r.width / 2 < innerWidth / 2 ? -1 : 1) * (innerWidth * .8);
+      el.style.animationPlayState = "paused";
+      el.classList.add("away");
+      el.style.translate = `${dx}px -40px`;
+      setTimeout(() => el.remove(), 950);
+    }
+  }
+
+  /* ---------- modo avião ---------- */
   const plane = document.getElementById("plane");
-  const thanks = document.getElementById("thanks");
+  const sub = document.getElementById("planeSub");
+  const bubble = document.getElementById("bubble");
+  const hero = document.getElementById("hero");
+  const lines = {
+    off: "Ei! ✋ Larga esse celular um pouquinho…",
+    on: ["Agora sim! 😄 Bora conversar?", "Isso! Agora é só nós dois 🙌", "Sinal perfeito aqui! 📶✨"]
+  };
+  let onCount = 0;
+
+  function say(text) {
+    bubble.textContent = text;
+    bubble.classList.remove("swap"); void bubble.offsetWidth; bubble.classList.add("swap");
+  }
+
+  function flyby() {
+    const p = document.createElement("div");
+    p.className = "flyby";
+    p.innerHTML = plane.querySelector("svg").outerHTML;
+    document.body.appendChild(p);
+    p.addEventListener("animationend", () => p.remove());
+  }
+
   function toggle() {
     const on = plane.classList.toggle("on");
     plane.setAttribute("aria-checked", on);
-    thanks.textContent = on ? "Desconectado do mundo, conectado com Ele. 🙏" : "";
-    if (on && navigator.vibrate) navigator.vibrate(30);
+    if (on) {
+      sub.textContent = "Desconectado do mundo, conectado com Ele 🙏";
+      say(lines.on[onCount++ % lines.on.length]);
+      hero.classList.remove("happy"); void hero.offsetWidth; hero.classList.add("happy");
+      clearDistractions();
+      if (!reduce) flyby();
+      const r = plane.getBoundingClientRect();
+      burst(r.left + r.width / 2, r.top + r.height / 2);
+      if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
+    } else {
+      sub.textContent = "Toque aqui para se desconectar";
+      say("Ué… já voltou? 🤨");
+      hero.classList.remove("happy");
+      if (!reduce) setTimeout(startSpawning, 600);
+    }
   }
   plane.addEventListener("click", toggle);
   plane.addEventListener("keydown", e => {
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+  });
+
+  // tocar no Jesus faz ele falar
+  const taps = ["Tô falando sério 😅", "Modo avião, por favor ✈️", "Eu tô aqui, ó! 👋", "Desliga, vai… 🙏"];
+  let tapN = 0;
+  hero.querySelector("img").addEventListener("click", () => {
+    if (plane.classList.contains("on")) say("Te amo! ❤️");
+    else say(taps[tapN++ % taps.length]);
   });
 })();
 </script>

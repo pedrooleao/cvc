@@ -24,7 +24,7 @@
     background: #fff; padding: 20px; border-radius: 18px;
     box-shadow: 0 14px 40px rgba(30,42,68,.12);
   }
-  #qr svg { display: block; width: min(70vw, 340px); height: auto; }
+  #qr svg { display: block; width: min(58vw, 340px); height: auto; }
   .signature {
     display: flex; align-items: center; gap: 16px;
     font-size: 14px; font-weight: 500; letter-spacing: .14em; text-transform: uppercase;
@@ -34,6 +34,14 @@
     .signature { font-size: 11px; gap: 10px; white-space: nowrap; }
     .signature i { width: 32px; }
   }
+  .logo { background: #1c1c1c; padding: 12px 22px; border-radius: 14px; }
+  .logo img { display: block; height: 52px; width: auto; }
+  .stage { position: relative; display: flex; align-items: flex-end; justify-content: center; }
+  .stage .jesus {
+    width: min(26vw, 150px); height: auto; margin-right: -18px; z-index: 1;
+    filter: drop-shadow(0 12px 14px rgba(30,42,68,.18));
+  }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .url { font-size: 12px; color: #7a8297; word-break: break-all; }
   button {
     font: inherit; font-weight: 600; cursor: pointer;
@@ -47,9 +55,13 @@
 </style>
 </head>
 <body>
+  <div class="logo"><img src="assets/logo-cvc.webp" alt="Comunidade de Vida Cristã Bruxelas" width="800" height="270"></div>
   <h1>Desconecte-se.<br>Conecte-se com Deus.</h1>
   <p>Aponte a câmera do celular para o código ✈</p>
-  <div id="qr"></div>
+  <div class="stage">
+    <img class="jesus" src="assets/jesus.webp" alt="" width="452" height="700">
+    <div id="qr"></div>
+  </div>
   <div class="signature"><span>Comunidade de Vida Cristã</span><i></i><span>Bruxelas</span></div>
   <span class="url" id="url"></span>
   <button onclick="print()">Imprimir</button>
